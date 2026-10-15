@@ -1,0 +1,10 @@
+${AnsiColor.BRIGHT_MAGENTA}
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+${AnsiColor.BRIGHT_YELLOW}
+      轻 客 管 家 - QingKe GuanJia
+${AnsiColor.BRIGHT_MAGENTA}
+     >> 应 哥 出 品 ， 必 属 精 品 <<
+
+            Version:${application.version}
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

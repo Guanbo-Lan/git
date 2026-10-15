@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- 继承springboot父工程 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.8</version>
+        <relativePath/>
+    </parent>
+    <!-- 当前项目坐标信息 -->
+    <groupId>com.qk</groupId>
+    <artifactId>qk-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <!-- 项目模块信息：子工程信息 -->
+    <modules>
+        <module>qk-common</module>
+        <module>qk-entity</module>
+        <module>qk-management</module>
+    </modules>
+    <!-- 项目名称 -->
+    <name>qk-parent</name>
+    <!-- 项目属性信息定义：比如软件版本 -->
+    <properties>
+        <java.version>21</java.version>
+        <qk.common.version>1.0.0</qk.common.version>
+        <qk.entity.version>1.0.0</qk.entity.version>
+        <mp.version>3.5.17</mp.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <!-- 依赖管理和声明 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- 模块坐标声明 -->
+            <!-- common模块依赖 -->
+            <dependency>
+                <groupId>com.qk</groupId>
+                <artifactId>qk-common</artifactId>
+                <version>${qk.common.version}</version>
+            </dependency>
+            <!-- entity模块依赖 -->
+            <dependency>
+                <groupId>com.qk</groupId>
+                <artifactId>qk-entity</artifactId>
+                <version>${qk.entity.version}</version>
+            </dependency>
+            <!-- 技术坐标依赖声明 -->
+            <!-- MP 和springboot4的起步依赖 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+                <version>${mp.version}</version>
+            </dependency>
+            <!-- MP 分页插件依赖 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mp.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <!-- 所有模块都需要的依赖 -->
+    <dependencies>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.42</version>
+        </dependency>
+        <!-- springboot专属开发工具提高开发效率 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <!-- lombok  -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

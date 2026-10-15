@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻客管家 · 项目架构与请求流程</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    line-height: 1.6;
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  header h1 { font-size: 30px; letter-spacing: 2px; color: #0f172a; }
+  header h1 span { color: #2563eb; }
+  header p { color: #64748b; margin-top: 6px; font-size: 14px; letter-spacing: 1px; }
+
+  h2 {
+    font-size: 17px;
+    color: #0f172a;
+    margin: 40px 0 16px;
+    padding-left: 12px;
+    border-left: 4px solid #2563eb;
+  }
+
+  /* ---------- 模块卡片 ---------- */
+  .modules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .mod {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 16px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.08);
+    border-top: 4px solid;
+  }
+  .mod h3 { font-size: 15px; margin-bottom: 4px; }
+  .mod .role { font-size: 12px; color: #2563eb; background: #eff6ff; display: inline-block;
+    padding: 1px 8px; border-radius: 10px; margin-bottom: 10px; }
+  .mod ul { list-style: none; font-size: 12.5px; color: #475569; }
+  .mod ul li { padding: 2px 0 2px 14px; position: relative; }
+  .mod ul li::before { content: "·"; position: absolute; left: 4px; color: #94a3b8; }
+  .mod.common   { border-color: #f59e0b; }
+  .mod.entity   { border-color: #8b5cf6; }
+  .mod.manage   { border-color: #10b981; }
+
+  /* ---------- 请求流程 ---------- */
+  .flow { background: #fff; border-radius: 14px; padding: 26px 26px 18px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.08); }
+  .stage {
+    display: flex; align-items: flex-start; gap: 16px;
+    border-radius: 10px; padding: 14px 18px; background: #f8fafc;
+    border-left: 5px solid #cbd5e1; position: relative;
+  }
+  .stage .idx {
+    flex: 0 0 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 14px; background: #94a3b8;
+  }
+  .stage .body { flex: 1; }
+  .stage .name { font-weight: 700; font-size: 15px; }
+  .stage .name small { font-weight: 400; color: #64748b; font-size: 12.5px; margin-left: 8px; }
+  .stage .desc { font-size: 13px; color: #475569; margin-top: 3px; }
+  .stage code {
+    display: inline-block; background: #0f172a; color: #7dd3fc;
+    font-family: Consolas, Monaco, monospace; font-size: 11.5px;
+    padding: 2px 8px; border-radius: 5px; margin-top: 8px;
+  }
+  .stage .side {
+    flex: 0 0 auto; font-size: 11.5px; padding: 3px 10px; border-radius: 8px;
+    background: #fef3c7; color: #b45309; white-space: nowrap;
+  }
+
+  .arrow { text-align: center; color: #cbd5e1; font-size: 20px; line-height: 1; padding: 5px 0; }
+
+  /* 配色 */
+  .s-front  { border-left-color: #3b82f6; } .s-front .idx  { background: #3b82f6; }
+  .s-guard  { border-left-color: #f59e0b; } .s-guard .idx  { background: #f59e0b; }
+  .s-ctrl   { border-left-color: #10b981; } .s-ctrl .idx   { background: #10b981; }
+  .s-svc    { border-left-color: #8b5cf6; } .s-svc .idx    { background: #8b5cf6; }
+  .s-map    { border-left-color: #06b6d4; } .s-map .idx    { background: #06b6d4; }
+  .s-db     { border-left-color: #64748b; } .s-db .idx     { background: #64748b; }
+
+  /* ---------- 横向机制 ---------- */
+  .mech { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.08); border: 1px dashed #cbd5e1;
+  }
+  .card h4 { font-size: 14px; margin-bottom: 6px; }
+  .card p { font-size: 12.5px; color: #475569; }
+  .card .tag { font-size: 11px; color: #2563eb; background: #eff6ff;
+    padding: 1px 8px; border-radius: 8px; display: inline-block; margin-bottom: 8px; }
+
+  /* ---------- 业务主线 ---------- */
+  .biz { display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: #fff; border-radius: 14px; padding: 28px 18px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.08); flex-wrap: wrap; }
+  .node {
+    text-align: center; border-radius: 12px; padding: 16px 26px; color: #fff; min-width: 130px;
+  }
+  .node b { font-size: 16px; display: block; }
+  .node span { font-size: 11.5px; opacity: .9; }
+  .n1 { background: #f59e0b; } .n2 { background: #8b5cf6; } .n3 { background: #10b981; }
+  .biz .sep { color: #cbd5e1; font-size: 24px; font-weight: 700; }
+
+  footer { text-align: center; color: #94a3b8; font-size: 12px; margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>轻客<span>管家</span></h1>
+    <p>项目架构 &amp; 一次请求的完整旅程</p>
+  </header>
+
+  <h2>一、三大模块，各司其职</h2>
+  <div class="modules">
+    <div class="mod common">
+      <h3>qk-common</h3>
+      <div class="role">后勤行政部</div>
+      <ul>
+        <li>统一返回 Result</li>
+        <li>全局异常处理</li>
+        <li>JWT 工具 / 登录拦截器</li>
+        <li>分页 / 静态资源配置</li>
+      </ul>
+    </div>
+    <div class="mod entity">
+      <h3>qk-entity</h3>
+      <div class="role">数据模型</div>
+      <ul>
+        <li>PO —— 对应数据库表</li>
+        <li>DTO —— 接收前端参数</li>
+        <li>VO —— 返回给前端</li>
+        <li>只定义结构，不写逻辑</li>
+      </ul>
+    </div>
+    <div class="mod manage">
+      <h3>qk-management</h3>
+      <div class="role">业务实干部</div>
+      <ul>
+        <li>Controller 接请求</li>
+        <li>Service 写业务</li>
+        <li>Mapper 读写数据库</li>
+        <li>启动类 QKApp</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>二、一次请求的完整旅程</h2>
+  <div class="flow">
+
+    <div class="stage s-front">
+      <div class="idx">1</div>
+      <div class="body">
+        <div class="name">浏览器 / 前端 <small>发起请求</small></div>
+        <div class="desc">发出 HTTP 请求，请求头里带上登录拿到的 Token。</div>
+        <code>POST /login&nbsp;&nbsp;{ "username":"...", "password":"..." }</code>
+      </div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="stage s-guard">
+      <div class="idx">2</div>
+      <div class="body">
+        <div class="name">登录拦截器 <small>门卫 · LoginInterceptor</small></div>
+        <div class="desc">检查请求头 Token：为空或验签失败就直接拦下，返回 401。<br>放行名单：<code style="display:inline;padding:1px 6px">/login</code> 和 <code style="display:inline;padding:1px 6px">/upload/**</code>。</div>
+      </div>
+      <div class="side">无 Token → 401</div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="stage s-ctrl">
+      <div class="idx">3</div>
+      <div class="body">
+        <div class="name">Controller 层 <small>服务员</small></div>
+        <div class="desc">接收参数 → 调用 Service → 用 Result 统一包装返回。不写业务逻辑。</div>
+        <code>return Result.success(vo);</code>
+      </div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="stage s-svc">
+      <div class="idx">4</div>
+      <div class="body">
+        <div class="name">Service 层 <small>厨师</small></div>
+        <div class="desc">真正的业务逻辑：校验、判断、组装数据。遇到不合法的情况直接抛异常。</div>
+        <code>if (用户不存在) Throws.throwE(PARAM_INVALID);</code>
+      </div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="stage s-map">
+      <div class="idx">5</div>
+      <div class="body">
+        <div class="name">Mapper 层 <small>仓库管理员</small></div>
+        <div class="desc">继承 MyBatis-Plus 的 BaseMapper，单表增删改查一行不用写，自动生成。</div>
+        <code>public interface UserMapper extends BaseMapper&lt;User&gt; { }</code>
+      </div>
+    </div>
+
+    <div class="arrow">▼</div>
+
+    <div class="stage s-db">
+      <div class="idx">6</div>
+      <div class="body">
+        <div class="name">MySQL 数据库 <small>qk</small></div>
+        <div class="desc">数据最终落到表里：user、dept、role、clue、business、customer ...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>三、两个横向机制（所有接口都靠它们）</h2>
+  <div class="mech">
+    <div class="card">
+      <span class="tag">统一返回</span>
+      <h4>Result —— 格式永远一样</h4>
+      <p>成功 <code>code=1</code>，失败 <code>code=0</code>。前端只写一次解析逻辑。<br>构造器私有，只能 success() / error() 创建。</p>
+    </div>
+    <div class="card">
+      <span class="tag">全局异常处理</span>
+      <h4>QkExceptionHandler —— 异常的收容所</h4>
+      <p>业务代码「该抛就抛」，不用写 try-catch。<br>业务异常给真实原因，其它异常兜底提示。</p>
+    </div>
+  </div>
+
+  <h2>四、业务主线：线索 → 商机 → 客户</h2>
+  <div class="biz">
+    <div class="node n1"><b>线索</b><span>刚拿到电话</span></div>
+    <div class="sep">→</div>
+    <div class="node n2"><b>商机</b><span>有意向，跟进中</span></div>
+    <div class="sep">→</div>
+    <div class="node n3"><b>客户</b><span>已成交</span></div>
+  </div>
+
+  <footer>轻客管家 · Java 项目讲解配图</footer>
+</div>
+</body>
+</html>

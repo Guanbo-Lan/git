@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: qk-management
+    version: 1.0.0
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver  # 默认可以省略
+    url: jdbc:mysql://127.0.0.1:3306/qk
+    username: root
+    password: 123456
+  servlet:
+    multipart:
+      max-file-size: 10MB     # 单个文件最大大小
+      max-request-size: 20MB  # 单次请求最大大小
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+# 自定义配置
+qk:
+  upload:
+    dir: D:/qk-upload   # 图片上传保存的固定绝对路径目录
